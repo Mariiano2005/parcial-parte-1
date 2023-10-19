@@ -3,3 +3,5 @@
 # Link https://github.com/Mariiano2005/parcial-parte-1/new/main?readme=1
 # Fotos : 
 ![Tinkercad](./parcial_parte_1.png)
+![Tinkercad](./parcial_parte_2.png)
+![Tinkercad](./parcial_parte_3.png)
