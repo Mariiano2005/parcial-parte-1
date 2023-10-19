@@ -1,0 +1,227 @@
+#define A 10
+#define B 11
+#define C 5
+#define D 6
+#define E 7
+#define F 9
+#define G 8
+#define CLAVIJA 2        
+#define UNIDAD A4        
+#define DECENA A5        
+#define APAGADO 0        
+#define TIMEDISPLAYON 10 
+#define MOTOR_PIN 3      
+#define LDR_PIN A1       
+
+const int sensorPin = A0; 
+
+int countDigit = 1;
+int isArduinoOn = 1;    
+int motorIsOn = 0;      
+
+int esPrimo(int numero) {
+    if (numero <= 1) {
+        return 0;
+    }
+    for (int i = 2; i * i <= numero; i++) {
+        if (numero % i == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int keypressed() {
+    int interruptor = digitalRead(CLAVIJA);
+    delay(10);
+    if (interruptor == 1) {
+        return interruptor;
+    }
+    return APAGADO;
+}
+
+void setup() {
+    pinMode(5, OUTPUT);
+    pinMode(6, OUTPUT);
+    pinMode(7, OUTPUT);
+    pinMode(8, OUTPUT);
+    pinMode(9, OUTPUT);
+    pinMode(10, OUTPUT);
+    pinMode(11, OUTPUT);
+    pinMode(UNIDAD, OUTPUT);
+    pinMode(DECENA, OUTPUT);
+    pinMode(MOTOR_PIN, OUTPUT);
+    pinMode(LDR_PIN, INPUT); 
+    Serial.begin(9600);
+    printDigit(0);
+}
+
+void loop() {
+    int sensorValue = analogRead(sensorPin);
+    float voltage = (sensorValue / 1023.0) * 5.0;
+    float temperatureC = (voltage - 0.5) * 100.0;
+    int intensidadLuz = analogRead(LDR_PIN); 
+
+    if (temperatureC >= 30.0) {
+        isArduinoOn = 0;
+        digitalWrite(MOTOR_PIN, 0);
+        digitalWrite(UNIDAD, LOW);
+        digitalWrite(DECENA, LOW);
+        digitalWrite(LDR_PIN, LOW);
+    } else {
+        isArduinoOn = 1;
+        motorIsOn = 0;
+        if (isArduinoOn == 1) {
+            Serial.print("Intensidad de luz: ");
+            Serial.println(intensidadLuz);
+            if (!motorIsOn) {
+                analogWrite(MOTOR_PIN, 150);
+                motorIsOn = 1;
+            }
+            int interruptor = keypressed();
+            printDigit(countDigit);
+            if (interruptor == APAGADO) {
+                countDigit++;
+                if (countDigit > 99) {
+                    countDigit = 0;
+                }
+                delay(TIMEDISPLAYON);
+            } else {
+                for (int i = 0; i < 100; i++) {
+                    if (esPrimo(i)) {
+                        countDigit = i;
+                        printDigit(countDigit);
+                       	Serial.print("Intensidad de luz: ");
+            			Serial.println(intensidadLuz);
+                        delay(TIMEDISPLAYON);
+                    }
+                }
+            }
+            Serial.print("Temperatura: ");
+            Serial.print(temperatureC);
+            Serial.println(" °C");
+        }
+    }
+}
+
+
+void printDigit(int number) {
+    int decena = number / 10;
+    int unidad = number % 10;
+
+    digitalWrite(UNIDAD, LOW);
+    digitalWrite(DECENA, LOW);
+    display(decena);
+    digitalWrite(DECENA, HIGH);
+    delay(120);
+
+    digitalWrite(UNIDAD, LOW);
+    digitalWrite(DECENA, LOW);
+    display(unidad);
+    digitalWrite(UNIDAD, HIGH);
+    delay(120);
+}
+
+void display(int digit) {
+    switch (digit) {
+        case 0:
+            digitalWrite(A, LOW);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, LOW);
+            digitalWrite(E, LOW);
+            digitalWrite(F, LOW);
+            digitalWrite(G, HIGH);
+            break;
+        case 1:
+            digitalWrite(A, HIGH);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
+            break;
+        case 2:
+            digitalWrite(A, LOW);
+            digitalWrite(B, LOW);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, LOW);
+            digitalWrite(E, LOW);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, LOW);
+            break;
+        case 3:
+            digitalWrite(A, LOW);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, LOW);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, LOW);
+            break;
+        case 4:
+            digitalWrite(A, HIGH);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, LOW);
+            digitalWrite(G, LOW);
+            break;
+        case 5:
+            digitalWrite(A, LOW);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, LOW);
+            digitalWrite(D, LOW);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, LOW);
+            digitalWrite(G, LOW);
+            break;
+        case 6:
+            digitalWrite(A, LOW);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, LOW);
+            digitalWrite(D, LOW);
+            digitalWrite(E, LOW);
+            digitalWrite(F, LOW);
+            digitalWrite(G, LOW);
+            break;
+        case 7:
+            digitalWrite(A, LOW);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
+            break;
+        case 8:
+            digitalWrite(A, LOW);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, LOW);
+            digitalWrite(E, LOW);
+            digitalWrite(F, LOW);
+            digitalWrite(G, LOW);
+            break;
+        case 9:
+            digitalWrite(A, LOW);
+            digitalWrite(B, LOW);
+            digitalWrite(C, LOW);
+            digitalWrite(D, LOW);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, LOW);
+            digitalWrite(G, LOW);
+            break;
+        default:
+            digitalWrite(A, HIGH);
+            digitalWrite(B, HIGH);
+            digitalWrite(C, HIGH);
+            digitalWrite(D, HIGH);
+            digitalWrite(E, HIGH);
+            digitalWrite(F, HIGH);
+            digitalWrite(G, HIGH);
+            break;
+    }
+}
